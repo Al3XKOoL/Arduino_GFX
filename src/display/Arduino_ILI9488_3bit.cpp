@@ -89,6 +89,7 @@ void Arduino_ILI9488_3bit::drawIndexedBitmap(int16_t x, int16_t y, uint8_t *bitm
   UNUSED(h);
 }
 
+#ifndef DISABLE_COLOR_DEFINES
 void Arduino_ILI9488_3bit::draw3bitRGBBitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h)
 {
   UNUSED(x);
@@ -98,6 +99,7 @@ void Arduino_ILI9488_3bit::draw3bitRGBBitmap(int16_t x, int16_t y, uint8_t *bitm
   _bus->writeBytes(bitmap, w * h / 2);
   _bus->endWrite();
 }
+#endif
 
 void Arduino_ILI9488_3bit::draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h)
 {
