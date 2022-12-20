@@ -38,7 +38,7 @@ void Arduino_Canvas::begin(int32_t speed)
 #endif
     if (!_framebuffer)
     {
-        Serial.println(F("_framebuffer allocation failed."));
+        log_e("_framebuffer allocation failed.");
     }
 }
 
