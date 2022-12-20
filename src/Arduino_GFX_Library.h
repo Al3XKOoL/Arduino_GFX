@@ -34,9 +34,11 @@
 #if !defined(LITTLE_FOOT_PRINT)
 #include "canvas/Arduino_Canvas.h"
 #include "canvas/Arduino_Canvas_Indexed.h"
+#ifndef DISABLE_COLOR_DEFINES
 #include "canvas/Arduino_Canvas_3bit.h"
 #include "canvas/Arduino_Canvas_Mono.h"
 #include "display/Arduino_ILI9488_3bit.h"
+#endif
 #endif // !defined(LITTLE_FOOT_PRINT)
 
 #include "display/Arduino_GC9106.h"
