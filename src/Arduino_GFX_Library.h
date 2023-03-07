@@ -123,6 +123,18 @@
 #define DF_GFX_DC 27
 #define DF_GFX_RST GFX_NOT_DEFINED
 #define DF_GFX_BL 12
+/* Waveshare RP2040-LCD-1.28 */
+#elif defined(ARDUINO_WAVESHARE_RP2040_LCD_1_28)
+#define DISPLAY_DEV_KIT
+#define WAVESHARE_RP2040_LCD_1_28
+#define DF_GFX_SCK 10
+#define DF_GFX_MOSI 11
+#define DF_GFX_MISO 12
+#define DF_GFX_CS 9
+#define DF_GFX_DC 8
+#define DF_GFX_RST 12
+#define DF_GFX_BL 25
+#define DF_GFX_SPI spi1
 #elif defined(ARDUINO_ARCH_NRF52840)
 #define DF_GFX_SCK 13
 #define DF_GFX_MOSI 11
@@ -148,7 +160,7 @@
 #define DF_GFX_DC 3
 #define DF_GFX_RST 2
 #define DF_GFX_BL 1
-#elif defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#elif defined(TARGET_RP2040)
 #define DF_GFX_SCK 18
 #define DF_GFX_MOSI 19
 #define DF_GFX_MISO 16
@@ -156,6 +168,7 @@
 #define DF_GFX_DC 27
 #define DF_GFX_RST 26
 #define DF_GFX_BL 28
+#define DF_GFX_SPI spi0
 #elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32)
 #define DF_GFX_SCK 18
 #define DF_GFX_MOSI 23
@@ -250,5 +263,9 @@
 
 Arduino_DataBus *create_default_Arduino_DataBus();
 Arduino_GFX *create_default_Arduino_GFX();
+
+void gfx_draw_bitmap_to_framebuffer(
+    uint16_t *from_bitmap, int16_t bitmap_w, int16_t bitmap_h,
+    uint16_t *framebuffer, int16_t x, int16_t y, int16_t framebuffer_w, int16_t framebuffer_h);
 
 #endif // _ARDUINO_GFX_LIBRARIES_H_

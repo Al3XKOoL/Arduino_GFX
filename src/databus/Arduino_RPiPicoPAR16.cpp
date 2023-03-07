@@ -1,4 +1,4 @@
-#if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#if defined(TARGET_RP2040)
 
 #include "Arduino_RPiPicoPAR16.h"
 
@@ -7,7 +7,7 @@ Arduino_RPiPicoPAR16::Arduino_RPiPicoPAR16(int8_t dc, int8_t cs, int8_t wr, int8
 {
 }
 
-void Arduino_RPiPicoPAR16::begin(int32_t speed, int8_t dataMode)
+bool Arduino_RPiPicoPAR16::begin(int32_t speed, int8_t dataMode)
 {
   pinMode(_dc, OUTPUT);
   digitalWrite(_dc, HIGH); // Data mode
@@ -53,6 +53,8 @@ void Arduino_RPiPicoPAR16::begin(int32_t speed, int8_t dataMode)
   pinMode(14, OUTPUT);
   pinMode(15, OUTPUT);
   sio_hw->gpio_clr = 0xFFFF;
+
+  return true;
 }
 
 void Arduino_RPiPicoPAR16::beginWrite()
@@ -252,4 +254,4 @@ INLINE void Arduino_RPiPicoPAR16::CS_LOW(void)
   }
 }
 
-#endif // #if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#endif // #if defined(TARGET_RP2040)

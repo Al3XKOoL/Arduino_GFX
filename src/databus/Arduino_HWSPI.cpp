@@ -34,7 +34,7 @@ Arduino_HWSPI::Arduino_HWSPI(int8_t dc, int8_t cs /* = GFX_NOT_DEFINED */, SPICl
 #endif
 }
 
-void Arduino_HWSPI::begin(int32_t speed, int8_t dataMode)
+bool Arduino_HWSPI::begin(int32_t speed, int8_t dataMode)
 {
   _speed = (speed == GFX_NOT_DEFINED) ? SPI_DEFAULT_FREQ : speed;
   _dataMode = dataMode;
@@ -63,7 +63,7 @@ void Arduino_HWSPI::begin(int32_t speed, int8_t dataMode)
     _csPortClr = &reg->OUTCLR;
     _csPinMask = 1UL << pin;
   }
-#elif defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#elif defined(TARGET_RP2040)
   _dcPinMask = digitalPinToBitMask(_dc);
   _dcPortSet = (PORTreg_t)&sio_hw->gpio_set;
   _dcPortClr = (PORTreg_t)&sio_hw->gpio_clr;
@@ -199,6 +199,8 @@ void Arduino_HWSPI::begin(int32_t speed, int8_t dataMode)
     _dataMode = SPI_MODE2;
   }
 #endif
+
+  return true;
 }
 
 void Arduino_HWSPI::beginWrite()

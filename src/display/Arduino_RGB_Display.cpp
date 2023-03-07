@@ -15,13 +15,14 @@ Arduino_RGB_Display::Arduino_RGB_Display(
   _rotation = r;
 }
 
-void Arduino_RGB_Display::begin(int32_t speed)
+bool Arduino_RGB_Display::begin(int32_t speed)
 {
-  _rgbpanel->begin(speed);
-
   if (_bus)
   {
-    _bus->begin();
+    if (!_bus->begin())
+    {
+      return false;
+    }
   }
 
   if (_rst != GFX_NOT_DEFINED)
@@ -52,7 +53,15 @@ void Arduino_RGB_Display::begin(int32_t speed)
     }
   }
 
+  _rgbpanel->begin(speed);
   _framebuffer = _rgbpanel->getFrameBuffer(WIDTH, HEIGHT);
+
+  if (!_framebuffer)
+  {
+    return false;
+  }
+
+  return true;
 }
 
 void Arduino_RGB_Display::writePixelPreclipped(int16_t x, int16_t y, uint16_t color)
@@ -176,6 +185,62 @@ void Arduino_RGB_Display::writeFillRectPreclipped(int16_t x, int16_t y,
   if (_auto_flush)
   {
     Cache_WriteBack_Addr(cachePos, _width * h * 2);
+  }
+}
+
+void Arduino_RGB_Display::drawIndexedBitmap(int16_t x, int16_t y, uint8_t *bitmap, uint16_t *color_index, int16_t w, int16_t h)
+{
+  if (
+      ((x + w - 1) < 0) || // Outside left
+      ((y + h - 1) < 0) || // Outside top
+      (x > _max_x) ||      // Outside right
+      (y > _max_y)         // Outside bottom
+  )
+  {
+    return;
+  }
+  else
+  {
+    int16_t xskip = 0;
+    if ((y + h - 1) > _max_y)
+    {
+      h -= (y + h - 1) - _max_y;
+    }
+    if (y < 0)
+    {
+      bitmap -= y * w;
+      h += y;
+      y = 0;
+    }
+    if ((x + w - 1) > _max_x)
+    {
+      xskip = (x + w - 1) - _max_x;
+      w -= xskip;
+    }
+    if (x < 0)
+    {
+      bitmap -= x;
+      xskip -= x;
+      w += x;
+      x = 0;
+    }
+    uint16_t *row = _framebuffer;
+    row += y * _width;
+    uint32_t cachePos = (uint32_t)row;
+    row += x;
+    for (int j = 0; j < h; j++)
+    {
+      for (int i = 0; i < w; i++)
+      {
+        row[i] = color_index[*bitmap++];
+      }
+      bitmap += xskip;
+      row += _width;
+    }
+    if (_auto_flush)
+    {
+      Cache_WriteBack_Addr(cachePos, _width * h * 2);
+    }
   }
 }
 

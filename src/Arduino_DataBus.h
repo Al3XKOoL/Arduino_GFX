@@ -7,7 +7,10 @@
 
 #include <Arduino.h>
 
+#define GFX_SKIP_OUTPUT_BEGIN -2
 #define GFX_NOT_DEFINED -1
+#define GFX_STR_HELPER(x) #x
+#define GFX_STR(x) GFX_STR_HELPER(x)
 
 #if defined(__AVR__)
 #define LITTLE_FOOT_PRINT // reduce program size for limited flash MCU
@@ -17,7 +20,7 @@ typedef uint8_t ARDUINOGFX_PORT_t;
 #define USE_FAST_PINIO   ///< Use direct PORT register access
 #define HAS_PORT_SET_CLR ///< PORTs have set & clear registers
 typedef uint32_t ARDUINOGFX_PORT_t;
-#elif defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#elif defined(TARGET_RP2040)
 #define USE_FAST_PINIO   ///< Use direct PORT register access
 #define HAS_PORT_SET_CLR ///< PORTs have set & clear registers
 typedef uint32_t ARDUINOGFX_PORT_t;
@@ -246,7 +249,7 @@ public:
 
   void unused() { UNUSED(_data16); } // avoid compiler warning
 
-  virtual void begin(int32_t speed = SPI_DEFAULT_FREQ, int8_t dataMode = GFX_NOT_DEFINED) = 0;
+  virtual bool begin(int32_t speed = SPI_DEFAULT_FREQ, int8_t dataMode = GFX_NOT_DEFINED) = 0;
   virtual void beginWrite() = 0;
   virtual void endWrite() = 0;
   virtual void writeCommand(uint8_t c) = 0;

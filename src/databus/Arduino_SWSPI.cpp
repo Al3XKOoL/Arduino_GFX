@@ -9,7 +9,7 @@ Arduino_SWSPI::Arduino_SWSPI(int8_t dc, int8_t cs, int8_t sck, int8_t mosi, int8
 {
 }
 
-void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
+bool Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
 {
   UNUSED(speed);
   UNUSED(dataMode);
@@ -71,7 +71,7 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _misoPinMask = 1UL << pin;
     _misoPort = &reg->IN;
   }
-#elif defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#elif defined(TARGET_RP2040)
   if (_dc != GFX_NOT_DEFINED)
   {
     _dcPinMask = digitalPinToBitMask(_dc);
@@ -252,6 +252,8 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
   }
 #endif // !HAS_PORT_SET_CLR
 #endif // USE_FAST_PINIO
+
+  return true;
 }
 
 void Arduino_SWSPI::beginWrite()

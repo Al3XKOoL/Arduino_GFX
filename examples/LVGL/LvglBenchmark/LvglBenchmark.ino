@@ -9,17 +9,21 @@
  * LVGL Configuration file:
  * Copy your_arduino_path/libraries/lvgl/lv_conf_template.h
  * to your_arduino_path/libraries/lv_conf.h
+ * 
+ * In lv_conf.h around line 15, enable config file:
+ * #if 1 // Set it to "1" to enable content
+ * 
  * Then find and set:
  * #define LV_COLOR_DEPTH     16
  * #define LV_TICK_CUSTOM     1
  *
- * For SPI display set color swap can be faster, parallel screen don't swap!
- * #define LV_COLOR_16_SWAP   1 // for SPI
- * #define LV_COLOR_16_SWAP   0 // for parallel and RGB
+ * For SPI/parallel 8 display set color swap can be faster, parallel 16/RGB screen don't swap!
+ * #define LV_COLOR_16_SWAP   1 // for SPI and parallel 8
+ * #define LV_COLOR_16_SWAP   0 // for parallel 16 and RGB
  *
  * Enable LVGL Demo Benchmark
  * #define LV_USE_DEMO_BENCHMARK 1
- * 
+ *
  * Enables support for compressed fonts.
  * #define LV_USE_FONT_COMPRESSED 1
  ******************************************************************************/
@@ -65,12 +69,16 @@ Arduino_GFX *gfx = new Arduino_ILI9341(bus, DF_GFX_RST, 0 /* rotation */, false 
  * End of Arduino_GFX setting
  ******************************************************************************/
 
+/*******************************************************************************
+ * Please config the touch panel in touch.h
+ ******************************************************************************/
+#include "touch.h"
+
 /* Change to your screen resolution */
 static uint32_t screenWidth;
 static uint32_t screenHeight;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t *disp_draw_buf;
-static lv_color_t *disp_draw_buf2;
 static lv_disp_drv_t disp_drv;
 static unsigned long last_ms;
 
@@ -89,6 +97,29 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
   lv_disp_flush_ready(disp);
 }
 
+void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
+{
+  if (touch_has_signal())
+  {
+    if (touch_touched())
+    {
+      data->state = LV_INDEV_STATE_PR;
+
+      /*Set the coordinates*/
+      data->point.x = touch_last_x;
+      data->point.y = touch_last_y;
+    }
+    else if (touch_released())
+    {
+      data->state = LV_INDEV_STATE_REL;
+    }
+  }
+  else
+  {
+    data->state = LV_INDEV_STATE_REL;
+  }
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -99,6 +130,9 @@ void setup()
 #ifdef GFX_EXTRA_PRE_INIT
   GFX_EXTRA_PRE_INIT();
 #endif
+
+  // Init touch device
+  touch_init(gfx->width(), gfx->height());
 
   // Init Display
   gfx->begin();
@@ -115,7 +149,6 @@ void setup()
   screenHeight = gfx->height();
 #ifdef ESP32
   disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t) * screenWidth * 32, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-  // disp_draw_buf2 = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t) * screenWidth * 32, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 #else
   disp_draw_buf = (lv_color_t *)malloc(sizeof(lv_color_t) * screenWidth * 32);
 #endif
@@ -125,15 +158,7 @@ void setup()
   }
   else
   {
-    if (!disp_draw_buf2)
-    {
-      Serial.println("LVGL disp_draw_buf2 not allocated!");
-      lv_disp_draw_buf_init(&draw_buf, disp_draw_buf, NULL, screenWidth * 32);
-    }
-    else
-    {
-      lv_disp_draw_buf_init(&draw_buf, disp_draw_buf, disp_draw_buf2, screenWidth * 32);
-    }
+    lv_disp_draw_buf_init(&draw_buf, disp_draw_buf, NULL, screenWidth * 32);
 
     /* Initialize the display */
     lv_disp_drv_init(&disp_drv);
@@ -148,6 +173,7 @@ void setup()
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = my_touchpad_read;
     lv_indev_drv_register(&indev_drv);
 
     lv_demo_benchmark();

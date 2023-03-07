@@ -21,7 +21,7 @@ class Arduino_XL9535SWSPI : public Arduino_DataBus
 public:
   Arduino_XL9535SWSPI(int8_t sda, int8_t scl, int8_t pwd, int8_t cs, int8_t sck, int8_t mosi, TwoWire *wire = &Wire);
 
-  void begin(int32_t speed = GFX_NOT_DEFINED, int8_t dataMode = GFX_NOT_DEFINED) override;
+  bool begin(int32_t speed = GFX_NOT_DEFINED, int8_t dataMode = GFX_NOT_DEFINED) override;
   void beginWrite() override;
   void endWrite() override;
   void writeCommand(uint8_t) override;
@@ -46,11 +46,12 @@ protected:
   uint8_t readRegister(uint8_t reg, uint8_t *data, uint8_t len);
 
   uint8_t _address;
-  TwoWire *_wire;
   bool is_found;
 
-private:
   int8_t _sda, _scl, _pwd, _cs, _sck, _mosi;
+  TwoWire *_wire;
+
+private:
 };
 
 #endif // _ARDUINO_XL9535SWSPI_H_

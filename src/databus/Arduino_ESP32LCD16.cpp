@@ -18,7 +18,7 @@ Arduino_ESP32LCD16::Arduino_ESP32LCD16(
 {
 }
 
-void Arduino_ESP32LCD16::begin(int32_t speed, int8_t dataMode)
+bool Arduino_ESP32LCD16::begin(int32_t speed, int8_t dataMode)
 {
   if (speed == GFX_NOT_DEFINED)
   {
@@ -67,7 +67,9 @@ void Arduino_ESP32LCD16::begin(int32_t speed, int8_t dataMode)
           _d0, _d1, _d2, _d3, _d4, _d5, _d6, _d7,
           _d8, _d9, _d10, _d11, _d12, _d13, _d14, _d15},
       .bus_width = 16,
-      .max_transfer_bytes = LCD_MAX_PIXELS_AT_ONCE * 2};
+      .max_transfer_bytes = LCD_MAX_PIXELS_AT_ONCE * 2,
+      .psram_trans_align = 0,
+      .sram_trans_align = 0};
   esp_lcd_new_i80_bus(&bus_config, &_i80_bus);
 
   uint32_t diff = INT32_MAX;
@@ -134,6 +136,8 @@ void Arduino_ESP32LCD16::begin(int32_t speed, int8_t dataMode)
 
   _dma_chan = _i80_bus->dma_chan;
   _dmadesc = (dma_descriptor_t *)heap_caps_malloc(sizeof(dma_descriptor_t), MALLOC_CAP_DMA);
+
+  return true;
 }
 
 void Arduino_ESP32LCD16::beginWrite()
