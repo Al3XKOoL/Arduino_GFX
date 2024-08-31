@@ -4,6 +4,9 @@
 #include "../Arduino_GFX.h"
 #include "Arduino_Canvas_Mono.h"
 
+#define WHITE 0xFFFF
+#define BLACK 0x0000
+
 Arduino_Canvas_Mono::Arduino_Canvas_Mono(int16_t w, int16_t h, Arduino_G *output, int16_t output_x, int16_t output_y)
     : Arduino_GFX(w, h), _output(output), _output_x(output_x), _output_y(output_y)
 {
